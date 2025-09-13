@@ -1,0 +1,30 @@
+name: Build iOS App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Получаем код
+        uses: actions/checkout@v3
+
+      - name: Собираем .ipa
+        run: |
+          xcodebuild -project AirTroller.xcodeproj \
+            -scheme AirTroller \
+            -configuration Release \
+            -archivePath build/AirTroller.xcarchive archive
+
+          xcodebuild -exportArchive \
+            -archivePath build/AirTroller.xcarchive \
+            -exportPath build \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Загружаем .ipa
+        uses: actions/upload-artifact@v3
+        with:
+          name: AirTroller-IPA
+          path: build/*.ipa
